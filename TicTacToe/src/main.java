@@ -7,7 +7,7 @@ public class main {
 		String currentTurn = "player";
 		String lastTurn = currentTurn;
 		
-		while(!board.isBoardFull()) {
+		while((!board.isBoardFull()) && !(board.isGameWon())) {
 			switch(currentTurn) {
 				case "player": 
 					board.playerMove();
@@ -20,11 +20,17 @@ public class main {
 					currentTurn = "player";
 					break;
 			}
-			
-			if(board.isGameWon()) {
-				System.out.println("We have a winner - " + lastTurn);
-				break;
+		}
+		
+		if(board.isGameWon()) {
+			board.draw();
+			if(lastTurn == "player") {
+				System.out.println("You have won the game!");
+			} else {
+				System.out.println("The computer has won..");
 			}
+		} else {
+			System.out.println("It's a tie!");
 		}
 	}
 

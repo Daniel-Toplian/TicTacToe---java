@@ -106,8 +106,6 @@ public class gameBoard {
 	}
 	
 	public void playerMove() {
-		
-		boolean isTurnValid = false;
 		Integer pos;
 				
 			this.draw();
@@ -143,7 +141,7 @@ public class gameBoard {
 		for(int cell = 1; cell < 10; cell++) {
 			if(isCellClear(cell)) {
 				this.placement(ai, cell);
-				score = this.miniMax(this.getBoard());
+				score = this.miniMax(this.getBoard(), 0, player);
 				this.placement(blank, cell);
 				if(score > bestScore) {
 					bestScore = score;
@@ -165,49 +163,99 @@ public class gameBoard {
 		}
 		
 		this.placement(ai, pos);
-	}
+	}	
 	
 	
-	
-	
-	private int miniMax(String[][] board) {
-		return 1;
-	}
-	
-	
-	public int isGameWon() {
+	private int miniMax(String[][] board, int depth, String player_token) {
+		int gameState = this.giveGameStatus();
+		ArrayList<Integer> options = new ArrayList();
+		options.add(1);
+		options.add(0);
+		options.add(-1);
 		
-		int isWon = 0;
+			if(options.contains(gameState)) {
+				return gameState;
+			} else {
+			if (player_token == ai) {
+			    int bestScore = Integer.MIN_VALUE;
+
+			      for (int cell = 1; cell < 10; cell++) {
+			        if (this.isCellClear(cell)) {
+			          this.placement(ai, cell);
+			          int score = this.miniMax(this.getBoard(), depth + 1, player);
+			          this.placement(blank, cell);
+			          
+			          if(score > bestScore) {
+			        	  bestScore = score;
+			          }
+			        }
+			      }
+			      
+			    return bestScore;
+			  } else {
+			    int bestScore = Integer.MAX_VALUE;
+			    
+			    for (int cell = 1; cell < 10; cell++) {
+			    	if (this.isCellClear(cell)) {
+			          this.placement(player, cell);
+			          int score = this.miniMax(board, depth + 1, ai);
+			          this.placement(blank, cell);
+			          if(score < bestScore) {
+			        	  bestScore = score;
+			          }
+			        }
+			      }
+			      
+			    return bestScore;
+		    }
+		}
+	}
+	
+	public boolean isGameWon() {
+		boolean isWon = false;
+		
+		if((checksIfCharacterWon(ai)) || (checksIfCharacterWon(player))) {
+			isWon = true;
+		}
+		
+		return isWon; 
+	}
+	
+	private int giveGameStatus() {
+		
+		int status = Integer.MAX_VALUE;
 		
 		if(checksIfCharacterWon(player)) {
-			isWon = -1;
+			status = -1;
 		} else if(checksIfCharacterWon(ai)) {
-			isWon = 1;
+			status = 1;
+		} else if (this.isBoardFull()) {
+			status = 0;
 		}
 		
-		return isWon;
+		return status;
 	}
 	
 	
-	private boolean checksIfCharacterWon(String tool) {
+	private boolean checksIfCharacterWon(String player_token) {
 		boolean result = false;
 		
-		if(this.isRowWin(tool)) {
+		if(this.isRowWin(player_token)) {
 			result = true;
-		} else if (this.isColWin(tool)) {
+		} else if (this.isColWin(player_token)) {
 			result = true;
-		} else if(this.isCrossWon(tool)) {
+		} else if(this.isCrossWon(player_token)) {
 			result = true;
-		}
+		} 
 		
 		return result;
 	}
 	
-	private boolean isRowWin(String tool) {
+	private boolean isRowWin(String player_token) {
 		boolean result = false;
 		
 		for(int row = 0; row < cellNum; row++) {
-			if((this.getBoard()[row][0] == tool)) {
+			if((this.getBoard()[row][0] == player_token)) {
 				if((this.getBoard()[row][0].equals(this.getBoard()[row][1]))&&
 				   (this.getBoard()[row][0].equals(this.getBoard()[row][2]))) {
 					result = true;
@@ -219,11 +267,11 @@ public class gameBoard {
 		return result;
 	}
 		
-	private boolean isColWin(String tool) {
+	private boolean isColWin(String player_token) {
 		boolean result = false;
 		
 		for(int col = 0; col < cellNum; col++) {
-			if(this.getBoard()[0][col] == tool) {
+			if(this.getBoard()[0][col] == player_token) {
 				if((this.getBoard()[0][col].equals(this.getBoard()[1][col]))&&
 				   (this.getBoard()[0][col].equals(this.getBoard()[2][col]))) {
 					result = true;
@@ -235,9 +283,9 @@ public class gameBoard {
 		return result;
 	}
 	
-	private boolean isCrossWon(String tool) {
+	private boolean isCrossWon(String player_token) {
 		boolean result = false;
-		if(this.getBoard()[1][1].equals(tool)) {
+		if(this.getBoard()[1][1].equals(player_token)) {
 			if ((((this.getBoard()[0][0].equals(this.getBoard()[1][1])) && 
 					(this.getBoard()[0][0].equals(this.getBoard()[2][2]))) || 
 					((this.getBoard()[0][2].equals(this.getBoard()[1][1])) && 
@@ -251,9 +299,9 @@ public class gameBoard {
 	
 	public void declareWinner() {
 		
-		if(this.isGameWon() == -1) {
+		if(this.giveGameStatus() == -1) {
 			System.out.println("Well done.. you win!");
-		} else if(this.isGameWon() == 1) {
+		} else if(this.giveGameStatus() == 1) {
 			System.out.println("Sorry, you have lost the game..");
 		} else {
 			System.out.println("It's a tie!");

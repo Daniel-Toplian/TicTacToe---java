@@ -6,7 +6,7 @@ public class main {
 		gameBoard board = new gameBoard();
 		String currentTurn = "player";
 		
-		while((!board.isBoardFull()) && (board.isGameWon() == 0)) {
+		while((!board.isBoardFull()) && !(board.isGameWon())) {
 			switch(currentTurn) {
 				case "player": 
 					board.playerMove();
